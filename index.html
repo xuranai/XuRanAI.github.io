@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陈明 · 个人学术主页</title>
+<meta name="description" content="陈明，某某大学计算机科学与技术学院助理教授，研究方向为机器学习系统与分布式计算。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F4EF;
+    --ink:#1C1F2A;
+    --ink-soft:#5B5F6B;
+    --line:#DEDAD0;
+    --accent:#2F4B3C;
+    --serif:'Noto Serif SC', 'Songti SC', serif;
+    --sans:'Noto Sans SC', 'PingFang SC', sans-serif;
+    --maxw:680px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    padding:0 24px;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color:var(--accent); }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .top-rule{
+    position:fixed; top:0; left:0; right:0; height:3px;
+    background:var(--accent);
+  }
+
+  .page{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:76px 0 96px;
+  }
+
+  /* ---- 头部 ---- */
+  .hero{ margin-bottom:8px; }
+
+  .hero h1{
+    font-size:2.15rem;
+    font-weight:700;
+    letter-spacing:.01em;
+    margin:0 0 10px;
+  }
+
+  .hero h1 .en-name{
+    display:inline-block;
+    margin-left:12px;
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:1rem;
+    color:var(--ink-soft);
+    vertical-align:middle;
+  }
+
+  .role{
+    font-family:var(--sans);
+    font-size:.96rem;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+  }
+
+  .contact{
+    list-style:none;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 20px;
+    padding:0;
+    margin:0 0 6px;
+    font-family:var(--sans);
+    font-size:.88rem;
+  }
+
+  .contact a{
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+    padding-bottom:1px;
+  }
+  .contact a:hover{ border-bottom-color:var(--accent); }
+
+  .contact button{
+    font:inherit;
+    background:none;
+    border:none;
+    color:var(--accent);
+    cursor:pointer;
+    padding:0 0 1px;
+    border-bottom:1px solid transparent;
+  }
+  .contact button:hover{ border-bottom-color:var(--accent); }
+
+  /* ---- 分区 ---- */
+  .block{ margin-top:48px; }
+
+  .block h2{
+    position:relative;
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0 0 18px;
+    padding-bottom:11px;
+  }
+  .block h2::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:0;
+    width:34px; height:2px;
+    background:var(--accent);
+  }
+
+  .lede{ font-size:1.02rem; margin:0; }
+
+  .tags{
+    font-family:var(--sans);
+    color:var(--ink-soft);
+    font-size:.95rem;
+    margin:0;
+  }
+
+  /* ---- 时间线列表（教育/经历/项目）---- */
+  .timeline{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .timeline li{ display:flex; gap:22px; }
+  .timeline .year{
+    flex:0 0 112px;
+    font-family:var(--sans);
+    font-size:.82rem;
+    color:var(--ink-soft);
+    padding-top:.2em;
+  }
+  .timeline .item{ flex:1; min-width:0; }
+  .timeline .item strong{ font-weight:600; }
+  .timeline .muted{
+    font-family:var(--sans);
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+
+  /* ---- 普通列表（荣誉/教学）---- */
+  .plain-list{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:10px;
+  }
+
+  /* ---- 论文列表 ---- */
+  .pub-list{
+    list-style:none; margin:0; padding:0;
+    counter-reset:pub;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .pub-list li{
+    counter-increment:pub;
+    position:relative;
+    padding-left:32px;
+  }
+  .pub-list li::before{
+    content:"[" counter(pub) "]";
+    position:absolute; left:0; top:0;
+    font-family:var(--sans);
+    font-size:.85rem;
+    color:var(--accent);
+  }
+  .pub-list .venue{
+    display:block;
+    font-family:var(--sans);
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+
+  .footer{
+    margin-top:76px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+    font-family:var(--sans);
+    font-size:.8rem;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:480px){
+    .page{ padding:52px 0 64px; }
+    .hero h1{ font-size:1.7rem; }
+    .hero h1 .en-name{ display:block; margin:6px 0 0; }
+    .timeline li{ flex-direction:column; gap:4px; }
+    .timeline .year{ flex-basis:auto; }
+  }
+
+  @media print{
+    .top-rule{ display:none; }
+    body{ background:#fff; padding:0; }
+    .page{ padding:24px 0; max-width:100%; }
+    .contact button{ display:none; }
+    .footer{ display:none; }
+    a{ color:var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-rule" aria-hidden="true"></div>
+
+<main class="page">
+
+  <header class="hero">
+    <h1>陈明<span class="en-name">Chen Ming</span></h1>
+    <p class="role">助理教授<br>某某大学 计算机科学与技术学院</p>
+    <ul class="contact">
+      <li><a href="mailto:chenming@example.edu.cn">chenming@example.edu.cn</a></li>
+      <li><a href="https://github.com/yourname" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://scholar.google.com/citations?user=xxxxxxx" target="_blank" rel="noopener">Google Scholar</a></li>
+      <li><a href="https://orcid.org/0000-0000-0000-0000" target="_blank" rel="noopener">ORCID</a></li>
+      <li><button type="button" onclick="window.print()">导出 PDF</button></li>
+    </ul>
+  </header>
+
+  <section class="block">
+    <p class="lede">我主要研究机器学习系统与分布式计算，关注大规模模型训练中的效率与可扩展性问题，近年来也在探索相关方法在实际场景中的落地应用。在此之前，我于某某大学获得博士学位，师从某某某教授。</p>
+  </section>
+
+  <section class="block">
+    <h2>研究方向</h2>
+    <p class="tags">机器学习系统　分布式计算　高性能计算优化　可信人工智能</p>
+  </section>
+
+  <section class="block">
+    <h2>教育背景</h2>
+    <ul class="timeline">
+      <li>
+        <span class="year">2018 – 2022</span>
+        <div class="item">
+          <strong>某某大学</strong>　计算机科学与技术　博士
+          <div class="muted">导师：某某某 教授</div>
+        </div>
+      </li>
+      <li>
+        <span class="year">2015 – 2018</span>
+        <div class="item"><strong>某某大学</strong>　计算机科学与技术　硕士</div>
+      </li>
+      <li>
+        <span class="year">2011 – 2015</span>
+        <div class="item"><strong>某某大学</strong>　软件工程　学士</div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>工作经历</h2>
+    <ul class="timeline">
+      <li>
+        <span class="year">2022 – 至今</span>
+        <div class="item"><strong>某某大学</strong> 计算机科学与技术学院，助理教授</div>
+      </li>
+      <li>
+        <span class="year">2020 – 2022</span>
+        <div class="item"><strong>某某研究院</strong>，博士后研究员</div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>代表性论文</h2>
+    <ol class="pub-list">
+      <li>
+        Ming Chen, Author B, Author C. 论文标题示例：一种面向大规模训练的高效通信优化方法.
+        <span class="venue">会议/期刊名称缩写, 2025.</span>
+      </li>
+      <li>
+        Author A, <strong>Ming Chen</strong>, Author C. 论文标题示例：面向边缘设备的模型压缩框架.
+        <span class="venue">会议/期刊名称缩写, 2024.</span>
+      </li>
+      <li>
+        Ming Chen, Author B. 论文标题示例：分布式系统中的容错机制研究.
+        <span class="venue">会议/期刊名称缩写, 2022.</span>
+      </li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2>项目与基金</h2>
+    <ul class="timeline">
+      <li>
+        <span class="year">2023 – 2026</span>
+        <div class="item">国家自然科学基金青年科学基金项目，《项目名称示例》，主持</div>
+      </li>
+      <li>
+        <span class="year">2022 – 2023</span>
+        <div class="item">某某大学青年教师启动基金，《项目名称示例》，主持</div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>荣誉奖励</h2>
+    <ul class="plain-list">
+      <li>2023 年，某某学院优秀青年教师</li>
+      <li>2022 年，某某学术会议最佳论文提名</li>
+      <li>2021 年，某某大学优秀博士学位论文</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>教学工作</h2>
+    <ul class="plain-list">
+      <li>《数据结构与算法》（本科生，2023 年至今）</li>
+      <li>《分布式系统》（研究生，2022 年至今）</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>学术服务</h2>
+    <p class="lede" style="font-size:.95rem;">担任某某会议程序委员会委员，以及若干期刊的审稿人，如某某期刊、某某期刊等。</p>
+  </section>
+
+  <footer class="footer">
+    <p>最后更新于 2026 年 9 月。本页面为开源模板，欢迎自由复制与修改。</p>
+  </footer>
+
+</main>
+</body>
+</html>
