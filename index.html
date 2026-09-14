@@ -3,14 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>陈明 · 个人学术主页</title>
-<meta name="description" content="陈明，某某大学计算机科学与技术学院助理教授，研究方向为机器学习系统与分布式计算。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- 以下三项均由 content.md 的 frontmatter 在运行时填充 -->
+<title>载入中…</title>
+<meta name="description" content="">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* =========================================================
+     本文件只负责「排版」。
+     所有文字内容均来自 content.md，在页面加载后由下方脚本渲染。
+     ========================================================= */
+
   :root{
-    --paper:#F5F4EF;
+    --paper:#FAFAFA;
     --ink:#1C1F2A;
     --ink-soft:#5B5F6B;
     --line:#DEDAD0;
@@ -48,8 +53,53 @@
     padding:76px 0 96px;
   }
 
+  /* ---- 加载 / 出错提示 ---- */
+  .notice{
+    font-family:var(--sans);
+    font-size:.9rem;
+    line-height:1.9;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    padding:16px 18px;
+    margin:0;
+  }
+  .notice code{
+    font-family:ui-monospace, Menlo, Consolas, monospace;
+    font-size:.85em;
+    background:#F1EFE9;
+    padding:1px 5px;
+  }
+
   /* ---- 头部 ---- */
   .hero{ margin-bottom:8px; }
+
+  /* 左侧文字 + 右侧照片；没有照片时左栏自动占满整行 */
+  .hero-inner{
+    display:flex;
+    align-items:flex-start;
+    gap:36px;
+  }
+  .hero-text{ flex:1 1 auto; min-width:0; }
+
+  /* ---- 照片（图片路径由 content.md 的 photo 字段指定）----
+     形状由 photo_shape 控制：circle（默认）/ rounded / square；
+     三种形状各自带一个与常见人像接近的宽高比，原图按比例裁切、不拉伸。 */
+  .portrait{
+    flex:0 0 174px;
+    display:block;
+    object-fit:cover;            /* 非本比例的原图按比例裁切，不拉伸 */
+    object-position:center top;  /* 人像优先保留头部 */
+    background:#F1EFE9;
+    border:1px solid var(--line);
+    opacity:0;                   /* 载入完成前不显示：图片缺失时不留下空框 */
+    transition:opacity .25s ease;
+  }
+  .portrait.is-loaded{ opacity:1; }
+  .portrait.circle{ width:174px; height:174px; border-radius:50%; }
+  .portrait.rounded{ width:174px; height:218px; border-radius:12px; }
+  .portrait.square{ width:174px; height:244px; border-radius:0; }
+                                   /* 5:7，与一寸/二寸证件照一致 */
 
   .hero h1{
     font-size:2.15rem;
@@ -122,13 +172,30 @@
     background:var(--accent);
   }
 
+  .block h3{
+    font-size:.98rem;
+    font-weight:600;
+    margin:24px 0 8px;
+  }
+
   .lede{ font-size:1.02rem; margin:0; }
 
+  /* 可选：标题后写 {.tags} / {.text-sm} 可套用下面的样式 */
   .tags{
     font-family:var(--sans);
     color:var(--ink-soft);
     font-size:.95rem;
     margin:0;
+  }
+
+  .text-sm{ font-size:.95rem; }
+
+  /* ---- 次级说明行（列表项下的缩进子项）---- */
+  .muted{
+    font-family:var(--sans);
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-top:3px;
   }
 
   /* ---- 时间线列表（教育/经历/项目）---- */
@@ -146,20 +213,17 @@
   }
   .timeline .item{ flex:1; min-width:0; }
   .timeline .item strong{ font-weight:600; }
-  .timeline .muted{
-    font-family:var(--sans);
-    font-size:.85rem;
-    color:var(--ink-soft);
-    margin-top:3px;
-  }
 
-  /* ---- 普通列表（荣誉/教学）---- */
-  .plain-list{
-    list-style:none; margin:0; padding:0;
-    display:flex; flex-direction:column; gap:10px;
+  /* ---- 圆点无序列表（论文、荣誉、教学……所有用 - 写的列表）---- */
+  .bullet-list{
+    margin:0;
+    padding-left:1.2em;          /* 不能改成 flex：一用 flex，圆点就没了 */
   }
+  .bullet-list > li{ margin-top:10px; }
+  .bullet-list > li:first-child{ margin-top:0; }
+  .bullet-list > li::marker{ color:var(--accent); }
 
-  /* ---- 论文列表 ---- */
+  /* ---- 编号列表（条目用 1. 写时，参考文献观感）---- */
   .pub-list{
     list-style:none; margin:0; padding:0;
     counter-reset:pub;
@@ -177,10 +241,12 @@
     font-size:.85rem;
     color:var(--accent);
   }
-  .pub-list .venue{
+  /* 编号条目里用 *斜体* 标注的期刊/会议信息，单独成行 */
+  .pub-list em{
     display:block;
     font-family:var(--sans);
     font-size:.85rem;
+    font-style:normal;
     color:var(--ink-soft);
     margin-top:2px;
   }
@@ -192,6 +258,22 @@
     font-family:var(--sans);
     font-size:.8rem;
     color:var(--ink-soft);
+  }
+
+  /* 窄屏：照片移到姓名上方并居中，避免挤成一列细长文字 */
+  @media (max-width:620px){
+    .hero-inner{
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:24px;
+    }
+    .hero-text{ width:100%; }
+    .contact{ justify-content:center; }
+    .portrait{ flex:0 0 auto; }
+    .portrait.circle{ width:132px; height:132px; }
+    .portrait.rounded{ width:132px; height:165px; }
+    .portrait.square{ width:132px; height:185px; }
   }
 
   @media (max-width:480px){
@@ -206,6 +288,7 @@
     .top-rule{ display:none; }
     body{ background:#fff; padding:0; }
     .page{ padding:24px 0; max-width:100%; }
+    .portrait{ border:0; }
     .contact button{ display:none; }
     .footer{ display:none; }
     a{ color:var(--ink); }
@@ -216,122 +299,515 @@
 
 <div class="top-rule" aria-hidden="true"></div>
 
-<main class="page">
+<main class="page" id="app" aria-busy="true"></main>
 
-  <header class="hero">
-    <h1>陈明<span class="en-name">Chen Ming</span></h1>
-    <p class="role">助理教授<br>某某大学 计算机科学与技术学院</p>
-    <ul class="contact">
-      <li><a href="mailto:chenming@example.edu.cn">chenming@example.edu.cn</a></li>
-      <li><a href="https://github.com/yourname" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="https://scholar.google.com/citations?user=xxxxxxx" target="_blank" rel="noopener">Google Scholar</a></li>
-      <li><a href="https://orcid.org/0000-0000-0000-0000" target="_blank" rel="noopener">ORCID</a></li>
-      <li><button type="button" onclick="window.print()">导出 PDF</button></li>
-    </ul>
-  </header>
+<noscript>
+  <main class="page">
+    <p class="notice">本页正文存放在 <code>content.md</code> 中，需要启用 JavaScript 才能渲染。</p>
+  </main>
+</noscript>
 
-  <section class="block">
-    <p class="lede">我主要研究机器学习系统与分布式计算，关注大规模模型训练中的效率与可扩展性问题，近年来也在探索相关方法在实际场景中的落地应用。在此之前，我于某某大学获得博士学位，师从某某某教授。</p>
-  </section>
+<script>
+/* =========================================================================
+   渲染脚本：读取 content.md → 解析 frontmatter + Markdown → 套用上方排版
+   仅为「排版」服务，不含任何正文内容。
+   ========================================================================= */
+(function () {
+  'use strict';
 
-  <section class="block">
-    <h2>研究方向</h2>
-    <p class="tags">机器学习系统　分布式计算　高性能计算优化　可信人工智能</p>
-  </section>
+  var CONTENT_FILE = 'content.md';
 
-  <section class="block">
-    <h2>教育背景</h2>
-    <ul class="timeline">
-      <li>
-        <span class="year">2018 – 2022</span>
-        <div class="item">
-          <strong>某某大学</strong>　计算机科学与技术　博士
-          <div class="muted">导师：某某某 教授</div>
-        </div>
-      </li>
-      <li>
-        <span class="year">2015 – 2018</span>
-        <div class="item"><strong>某某大学</strong>　计算机科学与技术　硕士</div>
-      </li>
-      <li>
-        <span class="year">2011 – 2015</span>
-        <div class="item"><strong>某某大学</strong>　软件工程　学士</div>
-      </li>
-    </ul>
-  </section>
+  /* ---------------------------------------------------------------
+     0. 小工具
+     --------------------------------------------------------------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 
-  <section class="block">
-    <h2>工作经历</h2>
-    <ul class="timeline">
-      <li>
-        <span class="year">2022 – 至今</span>
-        <div class="item"><strong>某某大学</strong> 计算机科学与技术学院，助理教授</div>
-      </li>
-      <li>
-        <span class="year">2020 – 2022</span>
-        <div class="item"><strong>某某研究院</strong>，博士后研究员</div>
-      </li>
-    </ul>
-  </section>
+  function unquote(s) {
+    if (s && s.length > 1) {
+      var a = s.charAt(0), b = s.charAt(s.length - 1);
+      if ((a === '"' && b === '"') || (a === "'" && b === "'")) return s.slice(1, -1);
+    }
+    return s;
+  }
 
-  <section class="block">
-    <h2>代表性论文</h2>
-    <ol class="pub-list">
-      <li>
-        Ming Chen, Author B, Author C. 论文标题示例：一种面向大规模训练的高效通信优化方法.
-        <span class="venue">会议/期刊名称缩写, 2025.</span>
-      </li>
-      <li>
-        Author A, <strong>Ming Chen</strong>, Author C. 论文标题示例：面向边缘设备的模型压缩框架.
-        <span class="venue">会议/期刊名称缩写, 2024.</span>
-      </li>
-      <li>
-        Ming Chen, Author B. 论文标题示例：分布式系统中的容错机制研究.
-        <span class="venue">会议/期刊名称缩写, 2022.</span>
-      </li>
-    </ol>
-  </section>
+  /* 中文行之间直接拼接，英文行之间补一个空格 */
+  function softJoin(a, b) {
+    var endsCJK = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]$/.test(a);
+    var startsCJK = /^[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/.test(b);
+    return (endsCJK || startsCJK) ? a + b : a + ' ' + b;
+  }
 
-  <section class="block">
-    <h2>项目与基金</h2>
-    <ul class="timeline">
-      <li>
-        <span class="year">2023 – 2026</span>
-        <div class="item">国家自然科学基金青年科学基金项目，《项目名称示例》，主持</div>
-      </li>
-      <li>
-        <span class="year">2022 – 2023</span>
-        <div class="item">某某大学青年教师启动基金，《项目名称示例》，主持</div>
-      </li>
-    </ul>
-  </section>
+  /* ---------------------------------------------------------------
+     0b. 注释：写在 content.md 里但不上屏的内容
+     --------------------------------------------------------------- */
 
-  <section class="block">
-    <h2>荣誉奖励</h2>
-    <ul class="plain-list">
-      <li>2023 年，某某学院优秀青年教师</li>
-      <li>2022 年，某某学术会议最佳论文提名</li>
-      <li>2021 年，某某大学优秀博士学位论文</li>
-    </ul>
-  </section>
+  /* 正文注释（删除后不影响可见文字）：
+       <!-- ... -->     HTML 注释，可跨行；未闭合时按 HTML 规范吞到文末
+       [//]: # (...)   引用定义式写法，Markdown 里本来就不显示，常被当作注释
+     注释删掉后留下的多余空格一并收掉。 */
+  function stripComments(md) {
+    return String(md)
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/<!--[\s\S]*$/, '')
+      .replace(/^[ \t]*(?:[-*+]|\d+[.)])?[ \t]*\[[^\]\n]*\]:[ \t]+.*$/gm, '')
+      .replace(/(\S)[ \t]{2,}(\S)/g, '$1 $2');
+  }
 
-  <section class="block">
-    <h2>教学工作</h2>
-    <ul class="plain-list">
-      <li>《数据结构与算法》（本科生，2023 年至今）</li>
-      <li>《分布式系统》（研究生，2022 年至今）</li>
-    </ul>
-  </section>
+  /* YAML 行尾注释：`name: 许冉 # 姓名` 中的 ` # 姓名` 是注释；
+     整行以 # 开头则值为空（用于 `links: # 说明` 这种写法）；
+     值用引号包起来时，引号内的 # 保留，只丢弃引号之后的注释。 */
+  function stripYamlComment(s) {
+    var t = String(s == null ? '' : s).trim();
+    if (t.charAt(0) === '#') return '';
+    var q = t.charAt(0);
+    if (q === '"' || q === "'") {
+      var end = t.indexOf(q, 1);
+      if (end > 0) return t.slice(0, end + 1);
+    }
+    return t.replace(/[ \t]+#.*$/, '').trim();
+  }
 
-  <section class="block">
-    <h2>学术服务</h2>
-    <p class="lede" style="font-size:.95rem;">担任某某会议程序委员会委员，以及若干期刊的审稿人，如某某期刊、某某期刊等。</p>
-  </section>
+  /* ---------------------------------------------------------------
+     1. frontmatter（文件开头 --- 之间的简易 YAML）
+     --------------------------------------------------------------- */
+  function parseFrontmatter(text) {
+    /* 允许文件开头先出现空行（例如开头写了注释，注释被删掉后只剩空行） */
+    var src = String(text).replace(/^\uFEFF/, '').replace(/^(?:[ \t]*\r?\n)+/, '');
+    var m = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(src);
+    if (!m) return { data: {}, body: src };
 
-  <footer class="footer">
-    <p>最后更新于 2026 年 9 月。本页面为开源模板，欢迎自由复制与修改。</p>
-  </footer>
+    var data = {}, listKey = null;
 
-</main>
+    m[1].split(/\r?\n/).forEach(function (raw) {
+      if (!raw.trim() || /^\s*#/.test(raw)) return;          // 空行与整行注释
+
+      var indented = /^\s/.test(raw);
+      var line = raw.trim();
+      var item = /^-\s+(.+)$/.exec(line);
+      var kv = /^([A-Za-z0-9_-]+)\s*:\s*(.*)$/.exec(line);
+
+      if (item && listKey) {                                  // - label: xxx
+        var inner = /^([A-Za-z0-9_-]+)\s*:\s*(.*)$/.exec(item[1]);
+        if (inner) {
+          var obj = {};
+          obj[inner[1]] = unquote(stripYamlComment(inner[2]));
+          data[listKey].push(obj);
+        } else {
+          data[listKey].push(unquote(stripYamlComment(item[1])));
+        }
+        return;
+      }
+
+      if (kv && !indented) {                                  // key: value
+        var val = stripYamlComment(kv[2]);
+        if (val === '') { listKey = kv[1]; data[kv[1]] = []; }
+        else { listKey = null; data[kv[1]] = unquote(val); }
+        return;
+      }
+
+      if (indented && listKey) {                              // 续行属性 url: xxx
+        var last = data[listKey][data[listKey].length - 1];
+        if (kv && last && typeof last === 'object') last[kv[1]] = unquote(stripYamlComment(kv[2]));
+      }
+    });
+
+    return { data: data, body: src.slice(m[0].length) };
+  }
+
+  /* ---------------------------------------------------------------
+     2. Markdown 正文 → 区块列表
+        支持：# 标题（可用 {.类名} 附样式）、段落、- 无序列表、
+              1. 有序列表、缩进子项（渲染为次级说明行）
+     --------------------------------------------------------------- */
+  var LIST_RE = /^(\s*)([-*+]|\d+[.)])\s+(.+)$/;
+
+  function indentWidth(s) { return s.replace(/\t/g, '  ').length; }
+
+  function parseBlocks(md) {
+    var lines = md.replace(/\r\n?/g, '\n').split('\n');
+    var blocks = [];
+    var para = [];
+    var i = 0;
+
+    function flushPara() {
+      if (!para.length) return;
+      blocks.push({ type: 'p', text: para.reduce(function (a, l) { return softJoin(a, l); }) });
+      para = [];
+    }
+
+    while (i < lines.length) {
+      var line = lines[i];
+
+      if (!line.trim()) { flushPara(); i++; continue; }
+
+      /* 标题 */
+      var hm = /^(#{1,6})\s+(.*?)\s*$/.exec(line);
+      if (hm) {
+        flushPara();
+        var headText = hm[2], classes = [];
+        var attr = /\s*\{([^}]*)\}\s*$/.exec(headText);
+        if (attr) {
+          classes = attr[1].trim().split(/\s+/)
+            .filter(function (c) { return c.charAt(0) === '.'; })
+            .map(function (c) { return c.slice(1); });
+          headText = headText.slice(0, attr.index).trim();
+        }
+        blocks.push({ type: 'h', level: hm[1].length, text: headText, classes: classes });
+        i++;
+        continue;
+      }
+
+      /* 列表 */
+      var lm = LIST_RE.exec(line);
+      if (lm) {
+        flushPara();
+        var ordered = /^\d/.test(lm[2]);
+        var list = { type: 'list', ordered: ordered, items: [] };
+        var baseIndent = null;
+
+        while (i < lines.length) {
+          var cur = LIST_RE.exec(lines[i]);
+
+          if (!cur) {
+            /* 空行：若其后仍是本列表的条目，则属于同一列表
+               （Markdown 允许条目之间空行，论文列表常这么写） */
+            if (!lines[i].trim()) {
+              var j = i;
+              while (j < lines.length && !lines[j].trim()) j++;
+              var nxt = j < lines.length ? LIST_RE.exec(lines[j]) : null;
+              if (!nxt) break;                                     // 后面不是列表 → 列表结束
+              var nxtInd = indentWidth(nxt[1]);
+              if (nxtInd < baseIndent) break;                      // 回到更外层 → 列表结束
+              if (nxtInd === baseIndent && /^\d/.test(nxt[2]) !== ordered) break;
+              i = j;
+              cur = nxt;
+            } else if (/^\s/.test(lines[i])) {
+              /* 缩进的续行，并回上一项 */
+              var it = list.items[list.items.length - 1];
+              if (it) it.text = softJoin(it.text, lines[i].trim());
+              i++;
+              continue;
+            } else {
+              break;
+            }
+          }
+
+          var ind = indentWidth(cur[1]);
+          if (baseIndent === null) baseIndent = ind;
+
+          if (ind > baseIndent) {                                  // 嵌套子项
+            var lastItem = list.items[list.items.length - 1];
+            if (lastItem) lastItem.sub.push(cur[3]);
+            i++;
+            continue;
+          }
+          if (/^\d/.test(cur[2]) !== ordered) break;               // 同级但编号方式变了 → 新列表
+          list.items.push({ text: cur[3], sub: [] });
+          i++;
+        }
+
+        blocks.push(list);
+        continue;
+      }
+
+      para.push(line.trim());
+      i++;
+    }
+
+    flushPara();
+    return blocks;
+  }
+
+  /* ---------------------------------------------------------------
+     3. 行内标记 → HTML
+     --------------------------------------------------------------- */
+  function renderInline(text) {
+    var codes = [];
+    var s = esc(text);
+
+    s = s.replace(/`([^`]+)`/g, function (_, code) {
+      codes.push(code);
+      return '\u0000' + (codes.length - 1) + '\u0000';
+    });
+
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, label, url) {
+      if (!/^(https?:|mailto:|#|\/|\.)/i.test(url)) return label;
+      return '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>';
+    });
+
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    s = s.replace(/\u0000(\d+)\u0000/g, function (_, n) { return '<code>' + codes[+n] + '</code>'; });
+
+    return s;
+  }
+
+  /* ---------------------------------------------------------------
+     4. 区块 → DOM
+     --------------------------------------------------------------- */
+
+  /* 三种列表排版；可用标题后的 {.类名} 强制指定 */
+  var LIST_STYLES = ['timeline', 'bullet-list', 'pub-list'];
+
+  function renderList(list, forced) {
+    var el = document.createElement(list.ordered ? 'ol' : 'ul');
+    var items = list.items;
+    var style = forced;
+
+    if (LIST_STYLES.indexOf(style) < 0) {
+      if (list.ordered) {
+        style = 'pub-list';                    // 1. 2. 3. → 编号列表
+      } else {
+        var boldHeads = items.filter(function (it) { return /^\*\*[^*]+\*\*/.test(it.text); }).length;
+        /* 多数条目以 **时间** 开头 → 时间线；其余 - 列表一律圆点列表 */
+        style = (items.length && boldHeads * 2 >= items.length) ? 'timeline' : 'bullet-list';
+      }
+    }
+
+    el.className = style;
+
+    items.forEach(function (it) {
+      var li = document.createElement('li');
+      var box = li;
+
+      if (style === 'timeline') {
+        var m = /^\*\*([^*]+)\*\*\s*/.exec(it.text);
+        var year = document.createElement('span');
+        year.className = 'year';
+        year.innerHTML = m ? renderInline(m[1]) : '';
+        box = document.createElement('div');
+        box.className = 'item';
+        box.innerHTML = renderInline(m ? it.text.slice(m[0].length) : it.text);
+        li.appendChild(year);
+        li.appendChild(box);
+      } else {
+        li.innerHTML = renderInline(it.text);
+      }
+
+      it.sub.forEach(function (sub) {
+        var d = document.createElement('div');
+        d.className = 'muted';
+        d.innerHTML = renderInline(sub);
+        box.appendChild(d);
+      });
+
+      el.appendChild(li);
+    });
+
+    return el;
+  }
+
+  /* 照片形状；由 frontmatter 的 photo_shape 指定，默认圆形 */
+  var PHOTO_SHAPES = ['circle', 'rounded', 'square'];
+
+  function buildPortrait(data) {
+    if (!data.photo) return null;
+
+    var img = document.createElement('img');
+    img.className = 'portrait ' +
+      (PHOTO_SHAPES.indexOf(data.photo_shape) >= 0 ? data.photo_shape : 'circle');
+    img.src = data.photo;
+    img.alt = (data.name || '') + ' 的照片';
+    img.decoding = 'async';
+    /* 载入成功才淡入显示 */
+    img.addEventListener('load', function () {
+      img.className = img.className + ' is-loaded';
+    });
+    /* 照片缺失或路径写错时整块移除，不留下破图与空白 */
+    img.addEventListener('error', function () {
+      if (img.parentNode) img.parentNode.removeChild(img);
+    });
+    return img;
+  }
+
+  function buildHero(data) {
+    var hero = document.createElement('header');
+    hero.className = 'hero';
+
+    var inner = document.createElement('div');
+    inner.className = 'hero-inner';
+
+    var text = document.createElement('div');
+    text.className = 'hero-text';
+
+    var h1 = document.createElement('h1');
+    h1.innerHTML = renderInline(data.name || '') +
+      (data.en_name ? '<span class="en-name">' + esc(data.en_name) + '</span>' : '');
+    text.appendChild(h1);
+
+    if (data.title || data.affiliation) {
+      var role = document.createElement('p');
+      role.className = 'role';
+      role.innerHTML = [data.title, data.affiliation]
+        .filter(function (v) { return v; })
+        .map(esc).join('<br>');
+      text.appendChild(role);
+    }
+
+    var ul = document.createElement('ul');
+    ul.className = 'contact';
+
+    function addLi(html) {
+      var li = document.createElement('li');
+      li.innerHTML = html;
+      ul.appendChild(li);
+    }
+
+    if (data.email) {
+      addLi('<a href="mailto:' + esc(data.email) + '">' + esc(data.email) + '</a>');
+    }
+
+    var links = Array.isArray(data.links) ? data.links : [];
+    links.forEach(function (l) {
+      if (typeof l === 'string') { addLi(esc(l)); return; }
+      if (!l || !l.url) return;
+      addLi('<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' +
+            esc(l.label || l.url) + '</a>');
+    });
+
+    var btnLi = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '导出 PDF';
+    btn.addEventListener('click', function () { window.print(); });
+    btnLi.appendChild(btn);
+    ul.appendChild(btnLi);
+
+    text.appendChild(ul);
+    inner.appendChild(text);
+
+    var portrait = buildPortrait(data);
+    if (portrait) inner.appendChild(portrait);
+
+    hero.appendChild(inner);
+    return hero;
+  }
+
+  function render(app, md) {
+    var fm = parseFrontmatter(stripComments(md));
+    var data = fm.data;
+    var blocks = parseBlocks(fm.body);
+
+    app.innerHTML = '';
+    app.appendChild(buildHero(data));
+
+    /* 按二级标题分组 */
+    var groups = [];
+    blocks.forEach(function (b) {
+      if (b.type === 'h' && b.level === 1) return;               // 一级标题由 frontmatter 提供
+      if (b.type === 'h' && b.level === 2) { groups.push({ h: b, blocks: [] }); return; }
+      if (!groups.length) groups.push({ h: null, blocks: [] });
+      groups[groups.length - 1].blocks.push(b);
+    });
+
+    groups.forEach(function (g) {
+      if (!g.h && !g.blocks.length) return;
+
+      var sec = document.createElement('section');
+      sec.className = 'block';
+
+      if (g.h) {
+        var h2 = document.createElement('h2');
+        h2.innerHTML = renderInline(g.h.text);
+        sec.appendChild(h2);
+      }
+
+      var hints = g.h ? g.h.classes : [];
+      /* 列表样式类名用于强制列表排版，不要跟正文段落混用 */
+      var listStyle = null;
+      var paraHints = hints.filter(function (c) {
+        if (LIST_STYLES.indexOf(c) < 0) return true;
+        listStyle = c;
+        return false;
+      });
+      var singlePara = g.blocks.length === 1 && g.blocks[0].type === 'p';
+      var pClass = 'lede' + (paraHints.length ? ' ' + paraHints.join(' ') : '');
+
+      g.blocks.forEach(function (b) {
+        if (b.type === 'p') {
+          var p = document.createElement('p');
+          p.className = singlePara ? pClass : 'lede';
+          p.innerHTML = renderInline(b.text);
+          sec.appendChild(p);
+        } else if (b.type === 'list') {
+          sec.appendChild(renderList(b, listStyle));
+        } else if (b.type === 'h') {
+          var h3 = document.createElement('h3');
+          h3.innerHTML = renderInline(b.text);
+          sec.appendChild(h3);
+        }
+      });
+
+      app.appendChild(sec);
+    });
+
+    /* 页脚 */
+    if (data.updated || data.footer) {
+      var foot = document.createElement('footer');
+      foot.className = 'footer';
+      var bits = [];
+      if (data.updated) bits.push('最后更新于 ' + esc(data.updated) + '。');
+      if (data.footer) bits.push(esc(data.footer));
+      foot.innerHTML = '<p>' + bits.join('') + '</p>';
+      app.appendChild(foot);
+    }
+
+    /* <head> 信息 */
+    if (data.page_title) {
+      document.title = data.page_title;
+    } else if (data.name) {
+      document.title = data.name + (data.en_name ? '(' + data.en_name + ')' : '');
+    }
+
+    var firstPara = '';
+    for (var k = 0; k < blocks.length; k++) {
+      if (blocks[k].type === 'p') { firstPara = blocks[k].text; break; }
+    }
+    var meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute('content', data.description || firstPara);
+
+    app.removeAttribute('aria-busy');
+  }
+
+  /* ---------------------------------------------------------------
+     5. 启动
+     --------------------------------------------------------------- */
+  function fail(html) {
+    var app = document.getElementById('app');
+    app.innerHTML = '<p class="notice">' + html + '</p>';
+    app.removeAttribute('aria-busy');
+  }
+
+  function boot() {
+    if (location.protocol === 'file:') {
+      fail('浏览器禁止 <code>file://</code> 页面读取同目录下的文件。' +
+           '请在当前文件夹中启动一个本地服务器后访问：<br>' +
+           '<code>python -m http.server 8000</code>');
+      return;
+    }
+
+    fetch(CONTENT_FILE, { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+        return res.text();
+      })
+      .then(function (md) { render(document.getElementById('app'), md); })
+      .catch(function (err) {
+        fail('无法读取 <code>' + CONTENT_FILE + '</code>：' + esc(err.message) +
+             '<br>请确认该文件与 <code>index.html</code> 位于同一目录，' +
+             '并通过本地服务器访问本页（<code>python -m http.server 8000</code>）。');
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
 </body>
 </html>
